@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnResetPreview.setOnClickListener {
-            // TODO: Implement reset logic for image preview
+            binding.imagePreview.setImageResource(R.drawable.ic_launcher_background)
         }
     }
 
@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 Log.i("CameraPreviewApp", "Image successfully captured.")
                 val result: Bitmap? = data?.getParcelableExtra("data")
+                binding.imagePreview.setImageBitmap(result)
             } else  {
                 Log.i("CameraPreviewApp", "Image capture canceled or failed.")
             }
