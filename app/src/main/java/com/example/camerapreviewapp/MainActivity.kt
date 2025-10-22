@@ -12,41 +12,39 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.camerapreviewapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-
-    val takePicturePreview = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        if (bitmap != null) {
-            Log.i("CameraPreviewApp", "Image captured successfully.")
-            binding.imagePreview.setImageBitmap(bitmap)
-        } else {
-            Log.w("CameraPreviewApp", "No image captured or operation canceled.")
-        }
-    }
-
-    val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Log.i("CameraPreviewApp", "Camera permission granted.")
-            takePicturePreview.launch(null)
-        } else {
-            Log.w("CameraPreviewApp", "Camera permission denied.")
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        val binding: ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val takePicturePreview = registerForActivityResult(
+            ActivityResultContracts.TakePicturePreview()
+        ) { bitmap: Bitmap? ->
+            if (bitmap != null) {
+                Log.i("CameraPreviewApp", "Image captured successfully.")
+                binding.imagePreview.setImageBitmap(bitmap)
+            } else {
+                Log.w("CameraPreviewApp", "No image captured or operation canceled.")
+            }
+        }
+
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.i("CameraPreviewApp", "Camera permission granted.")
+                takePicturePreview.launch(null)
+            } else {
+                Log.w("CameraPreviewApp", "Camera permission denied.")
+            }
         }
 
         binding.btnOpenCamera.setOnClickListener {
