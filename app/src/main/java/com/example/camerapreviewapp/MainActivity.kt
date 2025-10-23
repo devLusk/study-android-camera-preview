@@ -1,14 +1,16 @@
 package com.example.camerapreviewapp
 
-import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import com.example.camerapreviewapp.databinding.ActivityMainBinding
 import java.io.File
 
@@ -26,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val photoFile = File.createTempFile("photo_", ".jpg", cacheDir)
+        val photoFile = File.createTempFile("photo_", ".jpg", getExternalFilesDir("realpath"))
         val photoURI = FileProvider.getUriForFile(
             this,
             "${applicationContext.packageName}.fileprovider",
@@ -39,6 +41,9 @@ class MainActivity : AppCompatActivity() {
             if (success) {
                 Log.i("CameraPreviewApp", "Image captured successfully.")
                 binding.imagePreview.setImageURI(photoURI)
+//                val imageDecoder = ImageDecoder.createSource(photoFile)
+//                val imageDrawable = ImageDecoder.decodeDrawable(imageDecoder) // Funcionamento bruto do setImageURI()
+//                binding.imagePreview.setImageDrawable(imageDrawable)
             } else {
                 Log.w("CameraPreviewApp", "No image captured or operation canceled.")
             }
@@ -49,18 +54,30 @@ class MainActivity : AppCompatActivity() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 Log.i("CameraPreviewApp", "Camera permission granted.")
-                takePicture.launch(photoURI)
+                binding.btnRequestPermission.isVisible = false
             } else {
                 Log.w("CameraPreviewApp", "Camera permission denied.")
             }
         }
 
         binding.btnOpenCamera.setOnClickListener {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            takePicture.launch(photoURI)
         }
 
         binding.btnResetPreview.setOnClickListener {
             binding.imagePreview.setImageResource(R.drawable.ic_launcher_background)
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            binding.btnRequestPermission.isVisible = false
+        } else {
+            binding.btnRequestPermission.setOnClickListener {
+                requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
         }
     }
 }
